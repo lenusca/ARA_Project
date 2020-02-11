@@ -1,0 +1,16 @@
+conf t
+
+interface FastEthernet0/0
+ip address 110.2.1.129 255.255.255.128
+ip ospf 4 area 0
+no shut
+ 
+interface FastEthernet0/1
+ip address 10.0.0.10 255.255.255.252
+ip ospf 4 area 0
+no shut
+
+end
+wri
+
+

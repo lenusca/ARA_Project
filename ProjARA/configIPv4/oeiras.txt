@@ -1,0 +1,138 @@
+conf term
+interface Loopback0
+ ip address 10.1.0.2 255.255.255.255
+ ip ospf 1 area 0
+ no shut
+
+interface FastEthernet0/0
+ ip address 10.10.1.2 255.255.255.0
+ ip ospf 1 area 0
+ no shut
+
+interface FastEthernet0/1
+ ip address 10.0.0.9 255.255.255.252
+ ip ospf 4 area 0
+ no shut
+
+interface FastEthernet1/0
+ ip address 10.0.0.21 255.255.255.252
+ ip ospf 1 area 0
+ no shut
+-------------------------------------------
+rotas de omissão para as redes clientes
+-------------------------------------------
+conf term
+router ospf 4
+ default-information originate always
+-------------------------------------------
+tive de mudar a distância
+administrativa para preferir sempre o bgp(200)
+-------------------------------------------
+conf term
+router ospf 1
+ distance 220
+-------------------------------------------
+bgp para todos os routers que estão ligados 
+a ethernet core
+-------------------------------------------
+conf term
+router bgp 1000
+ bgp log-neighbor-changes
+ neighbor 10.1.1.1 remote-as 1000
+ neighbor 10.1.1.3 remote-as 1000
+ neighbor 10.1.1.4 remote-as 1000
+ 
+ address-family ipv4
+  network 10.1.0.2 mask 255.255.255.255
+  redistribute ospf 1 match internal external 2
+  redistribute ospf 4
+  redistribute ospf 5
+  neighbor 10.1.1.1 activate
+  neighbor 10.1.1.1 next-hop-self
+  neighbor 10.1.1.3 activate
+  neighbor 10.1.1.3 next-hop-self
+  neighbor 10.1.1.3 route-map Lisboa in
+  neighbor 10.1.1.4 activate
+  neighbor 10.1.1.4 next-hop-self
+------------------------------------------
+todo o tráfego com destino AS3000 tem de 
+passar por lisboa, colocado no neighbor
+lisboa
+------------------------------------------
+conf term
+ip as-path access-list 1 permit _3000$
+
+route-map Lisboa permit 10
+match as-path 1
+set local-preference 200
+
+route-map Lisboa permit 20
+---------------------------------------------
+MPLS
+i) ativar o mpls (rsvp-te) no caminho todo
+ii) ativar o TE no ospf
+iii) ativar RSVP (total e por flow) no caminho todo
+----------------------------------------------
+conf term
+mpls traffic-eng tunnels
+
+int f1/0
+mpls traffic-eng tunnels
+ip rsvp bandwidth 50000 50000
+int f0/0
+mpls traffic-eng tunnels
+ip rsvp bandwidth 50000 50000
+conf term 
+router ospf 1
+mpls traffic-eng area 0 
+mpls traffic-eng router-id Loopback 0
+do clear ip ospf process
+---------------------------------------------
+MPLS VPN
+----------------------------------------------
+conf term
+ip vrf VPN-clientB
+rd 1000:1
+route-target export 1000:1
+route-target import 1000:1
+
+int f0/1
+ip vrf forwarding VPN-clientB
+ip address 10.0.0.9 255.255.255.252
+
+conf term
+mpls ip
+int f0/0
+mpls ip
+
+router bgp 1000
+bgp router-id 2.2.2.2
+neighbor 10.1.0.1 remote-as 1000
+neighbor 10.1.0.1 update-source Loopback0
+
+address-family vpnv4
+neighbor 10.1.0.1 activate
+neighbor 10.1.0.1 send-community both
+
+address-family ipv4 vrf VPN-clientB
+redistribute connected
+
+conf term
+ip route vrf VPN-clientB 0.0.0.0 0.0.0.0 10.1.1.3 global
+
+ip route 110.2.1.128 255.255.255.128 FastEthernet0/1
+
+router ospf 1
+redistribute static subnets
+
+conf t
+no router ospf 4
+
+router ospf 4 vrf VPN-clientB
+default-information originate always
+network 10.0.0.8 255.255.255.252 area 0
+
+router bgp 1000
+address-family ipv4 vrf VPN-clientB
+redistribute ospf 4 vrf VPN-clientB
+redistribute static

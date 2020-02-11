@@ -1,0 +1,28 @@
+Nov 30 18:03:30.649 HYPERVISOR: Release 0.2.17-x86/Windows (tag 2017072410)
+Nov 30 18:03:30.649 HYPERVISOR: Started on IP = 127.0.0.1, TCP port = 64875.
+Nov 30 18:03:31.077 HYPERVISOR: exec_cmd: hypervisor version 
+Nov 30 18:03:31.077 HYPERVISOR: exec_cmd: hypervisor working_dir C:\Users\lenin\Google Drive\UA\4ano\ARA\Pratica\ARA\ProjARA\ProjARA\proj\project-files\dynamips 
+Nov 30 18:03:31.078 GENERAL: working_dir=C:\Users\lenin\Google Drive\UA\4ano\ARA\Pratica\ARA\ProjARA\ProjARA\proj\project-files\dynamips
+Nov 30 18:03:31.079 HYPERVISOR: exec_cmd: ethsw create Ethernet_CORE 
+Nov 30 18:03:48.079 HYPERVISOR: exec_cmd: nio create_udp udp-14fc294d-1878-462b-969c-1f0f1a5fea64 10010 127.0.0.1 10011 
+Nov 30 18:03:48.126 HYPERVISOR: exec_cmd: ethsw add_nio Ethernet_CORE udp-14fc294d-1878-462b-969c-1f0f1a5fea64 
+Nov 30 18:03:48.134 HYPERVISOR: exec_cmd: ethsw set_dot1q_port Ethernet_CORE udp-14fc294d-1878-462b-969c-1f0f1a5fea64 1 
+Nov 30 18:03:48.237 HYPERVISOR: exec_cmd: nio create_udp udp-fb56694f-c2be-4f9e-b7a4-cec8ca958a73 10014 127.0.0.1 10015 
+Nov 30 18:03:48.240 HYPERVISOR: exec_cmd: ethsw add_nio Ethernet_CORE udp-fb56694f-c2be-4f9e-b7a4-cec8ca958a73 
+Nov 30 18:03:48.266 HYPERVISOR: exec_cmd: ethsw set_dot1q_port Ethernet_CORE udp-fb56694f-c2be-4f9e-b7a4-cec8ca958a73 1 
+Nov 30 18:03:48.510 HYPERVISOR: exec_cmd: nio create_udp udp-d89eaa01-472e-4f16-bd04-5621f34ff231 10016 127.0.0.1 10017 
+Nov 30 18:03:48.516 HYPERVISOR: exec_cmd: ethsw add_nio Ethernet_CORE udp-d89eaa01-472e-4f16-bd04-5621f34ff231 
+Nov 30 18:03:48.553 HYPERVISOR: exec_cmd: ethsw set_dot1q_port Ethernet_CORE udp-d89eaa01-472e-4f16-bd04-5621f34ff231 1 
+Nov 30 18:03:48.745 HYPERVISOR: exec_cmd: nio create_udp udp-56c9941c-2239-4d4f-b488-4c3e55325083 10018 127.0.0.1 10019 
+Nov 30 18:03:48.745 HYPERVISOR: exec_cmd: ethsw add_nio Ethernet_CORE udp-56c9941c-2239-4d4f-b488-4c3e55325083 
+Nov 30 18:03:48.757 HYPERVISOR: exec_cmd: ethsw set_dot1q_port Ethernet_CORE udp-56c9941c-2239-4d4f-b488-4c3e55325083 1 
+Nov 30 18:03:49.527 HYPERVISOR: exec_cmd: nio create_udp udp-09e6d3b1-66f4-4fdb-8dae-c7d2d4ed410f 10026 127.0.0.1 10027 
+Nov 30 18:03:49.528 HYPERVISOR: exec_cmd: ethsw add_nio Ethernet_CORE udp-09e6d3b1-66f4-4fdb-8dae-c7d2d4ed410f 
+Nov 30 18:03:49.558 HYPERVISOR: exec_cmd: ethsw set_dot1q_port Ethernet_CORE udp-09e6d3b1-66f4-4fdb-8dae-c7d2d4ed410f 1 
+Nov 30 18:03:50.694 HYPERVISOR: exec_cmd: nio create_udp udp-e8397ed4-c472-4078-84b1-3b823f559b0c 10040 127.0.0.1 10041 
+Nov 30 18:03:50.695 HYPERVISOR: exec_cmd: ethsw add_nio Ethernet_CORE udp-e8397ed4-c472-4078-84b1-3b823f559b0c 
+Nov 30 18:03:50.699 HYPERVISOR: exec_cmd: ethsw set_dot1q_port Ethernet_CORE udp-e8397ed4-c472-4078-84b1-3b823f559b0c 1 
+Nov 30 18:42:36.707 HYPERVISOR: exec_cmd: ethsw delete Ethernet_CORE 
+Nov 30 18:42:36.813 HYPERVISOR: exec_cmd: hypervisor stop 
+Nov 30 18:42:36.846 HYPERVISOR: Stopped.
+Nov 30 18:42:36.846 GENERAL: reset done.

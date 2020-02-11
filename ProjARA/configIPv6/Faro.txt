@@ -1,0 +1,28 @@
+conf t
+interface FastEthernet0/0
+ ip address 192.100.4.1 255.255.255.0
+ ip ospf 1 area 0
+ ipv6 address 2001:100:4::1/48
+ ipv6 ospf 1 area 0
+
+interface FastEthernet0/1
+ ip address 10.0.0.13 255.255.255.252
+ ip ospf 5 area 0
+ ipv6 address 2001:100:1::D/126
+ ipv6 ospf 5 area 0
+
+interface FastEthernet1/0
+ ip address 10.0.0.22 255.255.255.252
+ ip ospf 1 area 0
+ ipv6 address 2001:100:1::16/126
+ ipv6 ospf 1 area 0
+
+___________________________________
+___________________________________
+conf t
+ipv6 router ospf 1
+ redistribute ospf 5
+
+ipv6 router ospf 5
+ default-information originate always
+

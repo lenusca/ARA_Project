@@ -1,0 +1,18 @@
+conf t
+ipv6 unicast-routing
+
+
+int f0/0
+no shut
+ipv6 addr 3001:11:100::1/64
+ipv6 ospf 5 area 0
+ipv6 router ospf 5
+
+int f0/1
+no shut
+ipv6 addr 2001:100:1::E/126
+ipv6 ospf 5 area 0
+ipv6 router ospf 5
+
+end
+wr

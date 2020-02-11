@@ -1,0 +1,49 @@
+conf t
+
+interface FastEthernet0/0
+ ipv6 address 2001:100:1:100::3/64
+ ipv6 ospf 1 area 0
+
+interface FastEthernet0/1
+ ipv6 address 2001:4:4::A/126
+
+interface FastEthernet1/0
+ ipv6 address 2001:100:2::1/48
+
+_________________________________
+_________________________________
+conf t
+
+router bgp 1000
+ bgp default local-preference 200
+ neighbor 2001:4:4::9 remote-as 3000
+ neighbor 2001:100:1:100::1 remote-as 1000
+ neighbor 2001:100:1:100::2 remote-as 1000
+ neighbor 2001:100:1:100::4 remote-as 1000
+
+ address-family ipv6
+  neighbor 2001:4:4::9 activate
+  neighbor 2001:4:4::9 remove-private-as
+  neighbor 2001:4:4::9 weight 10
+  neighbor 2001:4:4::9 prefix-list pOut-default out
+  neighbor 2001:4:4::9 route-map routes-out out
+  neighbor 2001:100:1:100::1 activate
+  neighbor 2001:100:1:100::1 next-hop-self
+  neighbor 2001:100:1:100::1 default-originate
+  neighbor 2001:100:1:100::2 activate
+  neighbor 2001:100:1:100::2 next-hop-self
+  neighbor 2001:100:1:100::2 default-originate
+  neighbor 2001:100:1:100::4 activate
+  neighbor 2001:100:1:100::4 next-hop-self
+
+_______________________________________________
+_______________________________________________
+conf t
+ipv6 router ospf 1
+ default-information originate always
+ distance 220
+______________________________________________
+______________________________________________
+ipv6 prefix-list pOut-default seq 16 deny ::/0
+ipv6 prefix-list pOut-default seq 100 permit ::/0 le 128
+

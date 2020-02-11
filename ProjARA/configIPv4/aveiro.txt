@@ -1,0 +1,183 @@
+conf term
+interface Loopback0
+ ip address 10.1.0.1 255.255.255.255
+ ip ospf 1 area 0
+ no shut
+	
+interface FastEthernet0/0
+ ip address 10.1.1.1 255.255.255.0
+ ip ospf 1 area 0
+ no shut
+
+interface FastEthernet0/1
+ ip address 10.0.0.1 255.255.255.252
+ ip ospf 2 area 0
+ no shut
+
+interface FastEthernet1/0
+ ip address 10.0.0.5 255.255.255.252
+ ip ospf 3 area 0
+ no shut
+
+interface FastEthernet1/1
+ ip address 192.100.3.1 255.255.255.0
+ ip ospf 1 area 0
+ no shut
+-------------------------------------------
+rotas de omissão para as redes clientes
+-------------------------------------------
+conf term
+router ospf 2
+ default-information originate always
+
+router ospf 3
+ default-information originate always
+-------------------------------------------
+tive de mudar a distância
+administrativa para preferir sempre o bgp(200)
+-------------------------------------------
+conf term
+router ospf 1
+ distance 220
+-------------------------------------------
+-------------------------------------------
+bgp para todos os routers que estão ligados 
+a ethernet core
+-------------------------------------------
+conf term
+router bgp 1000
+ bgp log-neighbor-changes
+ neighbor 10.1.1.2 remote-as 1000
+ neighbor 10.1.1.3 remote-as 1000
+ neighbor 10.1.1.4 remote-as 1000
+ 
+ address-family ipv4
+  network 10.1.0.1 mask 255.255.255.255
+  redistribute ospf 2
+  redistribute ospf 3
+  neighbor 10.1.1.2 activate
+  neighbor 10.1.1.2 next-hop-self
+  neighbor 10.1.1.3 activate
+  neighbor 10.1.1.3 next-hop-self
+  neighbor 10.1.1.4 activate
+  neighbor 10.1.1.4 next-hop-self
+  neighbor 10.1.1.4 route-map Porto in
+
+------------------------------------------
+todo o tráfego com destino AS3000 tem de 
+passar pelo porto, colocado no neighbor
+porto
+------------------------------------------
+conf term
+ip as-path access-list 1 permit _3000$
+
+route-map Porto permit 10
+ match as-path 1
+ set local-preference 300
+
+route-map Porto permit 20
+---------------------------------------------
+MPLS
+i) ativar o mpls (rsvp-te) no caminho todo
+ii) ativar o TE no ospf
+iii) ativar RSVP (total e por flow)
+iv) criar o tunel
+v) obrigar o trafego a ir pelo tunel (HTTP e portas)
+----------------------------------------------
+conf term
+mpls traffic-eng tunnels
+
+int f0/0
+mpls traffic-eng tunnels
+ip rsvp bandwidth 50000 50000
+
+conf term 
+router ospf 1
+mpls traffic-eng area 0 
+mpls traffic-eng router-id Loopback 0
+
+#static
+conf term
+int Tunnel 1
+no shut
+ip unnumbered Loopback0
+tunnel mode mpls traffic-eng
+tunnel destination 10.1.0.5
+tunnel mpls traffic-eng bandwidth 20000
+tunnel mpls traffic-eng path-option 1 explicit name faro1
+
+ip explicit-path name faro1 enable
+next-address 10.1.1.2
+next-address 10.0.0.22
+
+conf term
+ip access-list extend HTTP
+permit tcp 110.1.1.0 0.0.0.127 110.1.1.128 0.0.0.127 eq 80
+permit tcp 110.1.1.0 0.0.0.127 110.1.1.128 0.0.0.127 eq 443
+
+route-map clientA permit 30
+ match ip address HTTP
+ set interface Tunnel1
+
+route-map clientA permit 40
+
+conf t
+int f0/1
+ip policy route-map clientA
+
+---------------------------------------------
+MPLS VPN
+i) ativar LDP e colocar as confg para vrf
+i) adicionar a loopback aos neighbors
+----------------------------------------------
+conf term
+ip vrf VPN-clientB
+rd 1000:1
+route-target export 1000:1
+route-target import 1000:1
+
+int f1/0
+ip vrf forwarding VPN-clientB
+ip address 10.0.0.5 255.255.255.252
+
+
+conf term
+mpls ip
+int f1/1
+mpls ip
+
+int f0/0
+mpls ip
+
+router bgp 1000
+bgp router-id 1.1.1.1
+neighbor 10.1.0.2 remote-as 1000
+neighbor 10.1.0.2 update-source Loopback0
+
+address-family vpnv4
+neighbor 10.1.0.2 activate
+neighbor 10.1.0.2 send-community both
+
+address-family ipv4 vrf VPN-clientB
+redistribute connected
+
+conf term
+ip route vrf VPN-clientB 0.0.0.0 0.0.0.0 10.1.1.3 global
+
+ip route 110.2.1.0 255.255.255.128 FastEthernet1/0
+
+router ospf 1
+redistribute static subnets
+
+conf t
+no router ospf 3
+
+router ospf 3 vrf VPN-clientB
+default-information originate always
+network 10.0.0.4 255.255.255.252 area 0
+
+router bgp 1000
+address-family ipv4 vrf VPN-clientB
+redistribute ospf 3 vrf VPN-clientB
+redistribute static
+

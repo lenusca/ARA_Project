@@ -1,0 +1,79 @@
+conf term
+interface Loopback0
+ ip address 10.1.0.4 255.255.255.255
+ ip ospf 1 area 0
+ no shut
+interface FastEthernet0/0
+ ip address 10.1.1.4 255.255.255.0
+ ip ospf 1 area 0
+ no shut
+interface FastEthernet0/1
+ ip address 10.0.0.17 255.255.255.252
+ no shut
+interface FastEthernet1/1
+ ip address 4.4.4.1 255.255.255.252
+ no shut
+-------------------------------------------
+rotas de omissão, tive de mudar a distância
+administrativa para preferir sempre o bgp(200)
+-------------------------------------------
+conf term
+router ospf 1
+ default-information originate always
+ distance 220
+-------------------------------------------
+bgp para todos os routers que estão ligados 
+a ethernet core e rotas de omissão e ebgp
+-------------------------------------------
+conf term
+router bgp 1000
+ bgp log-neighbor-changes
+ neighbor 4.4.4.2 remote-as 2000
+ neighbor 10.0.0.18 remote-as 65000
+ neighbor 10.1.1.1 remote-as 1000
+ neighbor 10.1.1.2 remote-as 1000
+ neighbor 10.1.1.3 remote-as 1000
+ 
+ address-family ipv4
+  neighbor 4.4.4.2 activate
+  neighbor 4.4.4.2 weight 10
+  neighbor 4.4.4.2 remove-private-as        ---AS privado
+  neighbor 4.4.4.2 prefix-list pOut-priv-default out
+  neighbor 4.4.4.2 route-map routes-out out
+  neighbor 10.0.0.18 activate
+  neighbor 10.1.1.1 activate
+  neighbor 10.1.1.1 next-hop-self
+  neighbor 10.1.1.1 default-originate
+  neighbor 10.1.1.1 prefix-list notporto out
+  neighbor 10.1.1.2 activate
+  neighbor 10.1.1.2 next-hop-self
+  neighbor 10.1.1.2 default-originate
+  neighbor 10.1.1.2 prefix-list notporto out
+  neighbor 10.1.1.3 activate
+  neighbor 10.1.1.3 next-hop-self
+-------------------------------------------
+Non-transit AS, para não ser conhecida por
+outras AS
+-------------------------------------------
+conf term
+ip as-path access-list 1 permit ^$
+-------------------------------------------
+O trafego que tem destino SIP proxy 2nao 
+pode passar pelo porto, colocar nos neighbors
+-------------------------------------------
+conf term
+ip prefix-list notporto seq 10 deny 65.0.1.0/24 le 32
+ip prefix-list notporto seq 100 permit 0.0.0.0/0 le 32
+-------------------------------------------
+filtrar redes, copiado do guião
+-------------------------------------------
+ip prefix-list pOut-priv-default seq 10 deny 10.0.0.0/8 le 32
+ip prefix-list pOut-priv-default seq 12 deny 172.16.0.0/12 le 32
+ip prefix-list pOut-priv-default seq 14 deny 192.168.0.0/16 le 32
+ip prefix-list pOut-priv-default seq 16 deny 192.100.1.0/24 le 32
+ip prefix-list pOut-priv-default seq 18 deny 0.0.0.0/0
+ip prefix-list pOut-priv-default seq 100 permit 0.0.0.0/0 le 32
+
+route-map routes-out permit 10
+ match as-path 1
+

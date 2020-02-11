@@ -1,0 +1,77 @@
+conf term
+interface Loopback0
+ ip address 10.1.0.3 255.255.255.255
+ ip ospf 1 area 0
+ no shut
+
+interface FastEthernet0/0
+ ip address 10.1.1.3 255.255.255.0
+ ip ospf 1 area 0
+ no shut
+
+interface FastEthernet0/1
+ ip address 4.4.4.10 255.255.255.252
+ no shut
+
+interface FastEthernet1/0
+ ip address 192.100.2.1 255.255.255.0
+ no shut
+-------------------------------------------
+rotas de omissão, tive de mudar a distância
+administrativa para preferir sempre o bgp(200)
+-------------------------------------------
+conf term
+router ospf 1
+ default-information originate always
+ distance 220
+-------------------------------------------
+bgp para todos os routers que estão ligados 
+a ethernet core e rotas de omissão
+-------------------------------------------
+conf term
+router bgp 1000
+ bgp log-neighbor-changes
+ neighbor 4.4.4.9 remote-as 3000
+ neighbor 10.1.1.1 remote-as 1000
+ neighbor 10.1.1.2 remote-as 1000
+ neighbor 10.1.1.4 remote-as 1000
+ 
+ address-family ipv4
+  neighbor 4.4.4.9 activate
+  neighbor 4.4.4.9 weight 10
+  neighbor 4.4.4.9 prefix-list pOut-priv-default out
+  neighbor 4.4.4.9 route-map routes-out out
+  neighbor 10.1.1.1 activate
+  neighbor 10.1.1.1 next-hop-self
+  neighbor 10.1.1.1 default-originate
+  neighbor 10.1.1.2 activate
+  neighbor 10.1.1.2 next-hop-self
+  neighbor 10.1.1.2 default-originate
+  neighbor 10.1.1.4 activate
+  neighbor 10.1.1.4 next-hop-self
+-------------------------------------------
+Non-transit AS, para não ser conhecida por
+outras AS
+-------------------------------------------
+conf term
+ip as-path access-list 1 permit ^$
+-------------------------------------------
+filtrar redes, copiado do guião
+-------------------------------------------
+conf term
+ip prefix-list pOut-priv-default seq 10 deny 10.0.0.0/8 le 32
+ip prefix-list pOut-priv-default seq 12 deny 172.16.0.0/12 le 32
+ip prefix-list pOut-priv-default seq 14 deny 192.168.0.0/16 le 32
+ip prefix-list pOut-priv-default seq 16 deny 192.100.1.0/24 le 32
+ip prefix-list pOut-priv-default seq 18 deny 0.0.0.0/0  
+ip prefix-list pOut-priv-default seq 100 permit 0.0.0.0/0 le 32
+
+route-map routes-out permit 10
+ match as-path 1
+---------------------------------------------------
+o tráfico para a internet deve ir preferencialmente
+por ISP ES2, logo temos de colocar a rota de omissão
+de lisboa como preferencia
+----------------------------------------------------
+router bgp 1000
+bgp default local-preference 200

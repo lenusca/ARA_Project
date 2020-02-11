@@ -1,0 +1,40 @@
+conf t
+
+
+interface FastEthernet0/1
+ ipv6 address 2201:200:100::1/48
+ ipv6 ospf 6 area 0
+
+interface FastEthernet1/0
+ ipv6 address 2001:4:4::5/126
+
+interface FastEthernet1/1
+ ipv6 address 2001:4:4::2/126
+
+interface FastEthernet2/0
+ ipv6 address 2201:200:200::1/48
+ ipv6 ospf 7 area 0
+
+_________________________________________
+_________________________________________
+conf t
+
+router bgp 2000
+ bgp log-neighbor-changes
+ neighbor 2001:4:4::1 remote-as 1000
+ neighbor 2001:4:4::6 remote-as 3000
+ 
+ address-family ipv6
+  network 2201:200:100::/48
+  network 2201:200:200::/48
+  neighbor 2001:4:4::1 activate
+  neighbor 2001:4:4::1 default-originate
+  neighbor 2001:4:4::6 activate
+________________________________________
+________________________________________
+conf t
+
+ipv6 router ospf 6
+
+ipv6 router ospf 7
+

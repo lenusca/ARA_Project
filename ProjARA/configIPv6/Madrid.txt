@@ -1,0 +1,36 @@
+conf t
+
+interface FastEthernet0/1
+ ipv6 address 2001:4:4::9/126
+ no shut
+
+interface FastEthernet1/0
+ ipv6 address 2001:4:4::6/126
+ no shut
+
+interface FastEthernet1/1
+ ipv6 address 2201:65::1/48
+ ipv6 ospf 8 area 0
+ no shut
+
+interface FastEthernet2/0
+ ipv6 address 2201:66::1/48
+ no shut
+_____________________________________
+_____________________________________
+router bgp 3000
+ bgp default local-preference 300
+ neighbor 2001:4:4::5 remote-as 2000
+ neighbor 2001:4:4::A remote-as 1000
+
+ address-family ipv6
+  network 2201:65::/48
+  network 2201:66::/48
+  neighbor 2001:4:4::5 activate
+  neighbor 2001:4:4::A activate
+  neighbor 2001:4:4::A default-originate
+
+________________________________________
+_______________________________________
+ipv6 router ospf 8
+

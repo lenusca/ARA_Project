@@ -1,0 +1,76 @@
+conf term
+interface Loopback0
+ ip address 10.1.0.5 255.255.255.255
+ ip ospf 1 area 0
+ no shut
+
+interface FastEthernet0/0
+ ip address 192.100.4.1 255.255.255.0
+ ip ospf 1 area 0
+ no shut
+
+interface FastEthernet0/1
+ ip address 10.0.0.13 255.255.255.252
+ ip ospf 5 area 0
+ no shut
+
+interface FastEthernet1/0
+ ip address 10.0.0.22 255.255.255.252
+ ip ospf 1 area 0
+ no shut
+---------------------------------------
+Redistribuir ospf 5 dentro do ospf 1
+---------------------------------------
+router ospf 1
+ redistribute ospf 5 subnets
+-------------------------------------------
+rotas de omissão para as redes clientes
+-------------------------------------------
+router ospf 5
+ default-information originate always
+---------------------------------------------
+MPLS
+i) ativar o mpls (rsvp-te) no caminho todo
+ii) ativar o TE no ospf
+iii) ativar RSVP (total e por flow)
+iv) criar o tunel
+----------------------------------------------
+conf term
+mpls traffic-eng tunnels
+
+int f1/0
+ip rsvp bandwidth 50000 50000
+mpls traffic-eng tunnels
+conf term 
+router ospf 1
+mpls traffic-eng area 0 
+mpls traffic-eng router-id Loopback 0
+
+#static
+conf term
+int Tunnel 1
+no shut
+ip unnumbered Loopback0
+tunnel mode mpls traffic-eng
+tunnel destination 10.1.0.1
+tunnel mpls traffic-eng bandwidth 20000
+tunnel mpls traffic-eng path-option 1 explicit name aveiro1
+
+ip explicit-path name aveiro1 enable
+next-address 10.0.0.21
+next-address 10.1.1.1
+
+conf term
+ip access-list extend HTTP
+permit tcp 110.1.1.128 0.0.0.127 110.1.1.0 0.0.0.127 eq 80
+permit tcp 110.1.1.128 0.0.0.127 110.1.1.0 0.0.0.127 eq 443
+
+route-map clientA permit 30
+ match ip address HTTP
+ set interface Tunnel1
+
+route-map clientA permit 40
+
+conf t
+int f0/1
+ip policy route-map clientA

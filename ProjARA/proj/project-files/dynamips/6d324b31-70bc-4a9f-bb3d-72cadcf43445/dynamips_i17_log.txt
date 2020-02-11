@@ -1,0 +1,16 @@
+Nov 30 18:03:38.669 HYPERVISOR: Release 0.2.17-x86/Windows (tag 2017072410)
+Nov 30 18:03:38.669 HYPERVISOR: Started on IP = 127.0.0.1, TCP port = 64920.
+Nov 30 18:03:39.102 HYPERVISOR: exec_cmd: hypervisor version 
+Nov 30 18:03:39.103 HYPERVISOR: exec_cmd: hypervisor working_dir C:\Users\lenin\Google Drive\UA\4ano\ARA\Pratica\ARA\ProjARA\ProjARA\proj\project-files\dynamips 
+Nov 30 18:03:39.103 GENERAL: working_dir=C:\Users\lenin\Google Drive\UA\4ano\ARA\Pratica\ARA\ProjARA\ProjARA\proj\project-files\dynamips
+Nov 30 18:03:39.104 HYPERVISOR: exec_cmd: ethsw create sw10 
+Nov 30 18:03:51.978 HYPERVISOR: exec_cmd: nio create_udp udp-5cbf0d65-89eb-4f7e-a15e-59837531556f 10052 127.0.0.1 10053 
+Nov 30 18:03:52.029 HYPERVISOR: exec_cmd: ethsw add_nio sw10 udp-5cbf0d65-89eb-4f7e-a15e-59837531556f 
+Nov 30 18:03:52.043 HYPERVISOR: exec_cmd: ethsw set_access_port sw10 udp-5cbf0d65-89eb-4f7e-a15e-59837531556f 1 
+Nov 30 18:03:58.278 HYPERVISOR: exec_cmd: nio create_udp udp-1f52c60e-522a-4f74-8cfe-d76a949a8081 10131 127.0.0.1 10130 
+Nov 30 18:03:58.278 HYPERVISOR: exec_cmd: ethsw add_nio sw10 udp-1f52c60e-522a-4f74-8cfe-d76a949a8081 
+Nov 30 18:03:58.281 HYPERVISOR: exec_cmd: ethsw set_access_port sw10 udp-1f52c60e-522a-4f74-8cfe-d76a949a8081 1 
+Nov 30 18:42:36.705 HYPERVISOR: exec_cmd: ethsw delete sw10 
+Nov 30 18:42:36.746 HYPERVISOR: exec_cmd: hypervisor stop 
+Nov 30 18:42:36.931 HYPERVISOR: Stopped.
+Nov 30 18:42:36.931 GENERAL: reset done.

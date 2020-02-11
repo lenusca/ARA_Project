@@ -1,0 +1,26 @@
+conf t
+ipv6 unicast-routing
+
+
+int f0/0
+no shut
+ipv6 addr 3001:31::1/48
+ipv6 ospf 9 area 0
+
+int f0/1
+no shut
+ipv6 addr 2001:100:1::12/126
+
+-------------------------------------------
+bgp
+-------------------------------------------
+conf term
+router bgp 65000
+neighbor 2001:100:1::11 remote-as 1000
+
+address-family ipv6
+ network 3001:31::/48
+ neighbor 2001:100:1::11 activate
+ 
+end
+wr
